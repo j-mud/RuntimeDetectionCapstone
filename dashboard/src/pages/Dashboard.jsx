@@ -69,9 +69,14 @@ export default function Dashboard() {
             {scans.length === 0 ? (
               <tr><td colSpan={4} className="py-8 text-center text-gray-400">No scans yet</td></tr>
             ) : scans.map((s) => {
-              // detections endpoint doesn't return verdict/confidence,
-              // so we show status and N/A for confidence
-              const verdict = s.status === 'completed' ? 'Completed' : 'Pending';
+              const rl = (s.risk_level || '').toLowerCase();
+              const vd = {
+                safe:     { label: 'Safe',       color: 'bg-[#22c55e]' },
+                low:      { label: 'Safe',       color: 'bg-[#22c55e]' },
+                medium:   { label: 'Suspicious', color: 'bg-[#f59e0b]' },
+                high:     { label: 'Malicious',  color: 'bg-[#ef4444]' },
+                critical: { label: 'Malicious',  color: 'bg-[#ef4444]' },
+              }[rl] || { label: s.status || '\u2014', color: 'bg-gray-400' };
               return (
                 <tr key={s.scan_id} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-5 font-mono text-xs max-w-xs truncate text-gray-800">{s.url}</td>
@@ -79,13 +84,13 @@ export default function Dashboard() {
                     {s.created_at ? new Date(s.created_at).toLocaleDateString() : '-'}
                   </td>
                   <td className="py-3 px-5">
-                    <span className={`px-3 py-1 rounded-full text-white text-xs font-semibold ${
-                      s.status === 'completed' ? 'bg-[#22c55e]' : 'bg-[#f59e0b]'
-                    }`}>
-                      {verdict}
+                    <span className={`px-3 py-1 rounded-full text-white text-xs font-semibold ${vd.color}`}>
+                      {vd.label}
                     </span>
                   </td>
-                  <td className="py-3 px-5 text-gray-500 text-xs">-</td>
+                  <td className="py-3 px-5 text-gray-700 font-medium text-xs">
+                    {s.confidence != null ? Math.round(s.confidence * 100) + '%' : '\u2014'}
+                  </td>
                 </tr>
               );
             })}

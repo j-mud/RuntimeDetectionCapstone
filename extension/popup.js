@@ -8,47 +8,82 @@ document.addEventListener('DOMContentLoaded', () => {
   const scanResult = document.getElementById('scan-result');
   const loginError = document.getElementById('login-error');
   const userInfo = document.getElementById('user-info');
-  const lastScanDiv = document.getElementById('last-scan');
+  const lastScanSection = document.getElementById('last-scan-section');
   const lastScanInfo = document.getElementById('last-scan-info');
+  const statusDot = document.getElementById('status-dot');
+  const alertsList = document.getElementById('alerts-list');
+
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+  });
 
   function mapVerdict(riskLevel) {
-    if (riskLevel === 'safe' || riskLevel === 'low') return { label: 'Safe ✅', cls: 'safe' };
-    if (riskLevel === 'medium') return { label: 'Suspicious ⚠️', cls: 'suspicious' };
-    return { label: 'Malicious! 💀', cls: 'malicious' };
+    if (riskLevel === 'safe' || riskLevel === 'low') return { label: 'Safe \u2705', cls: 'safe' };
+    if (riskLevel === 'medium') return { label: 'Suspicious \u26A0\uFE0F', cls: 'suspicious' };
+    return { label: 'Malicious! \uD83D\uDC80', cls: 'malicious' };
   }
 
   function showResult(data) {
     const v = mapVerdict(data.risk_level);
-    scanResult.className = `result ${v.cls}`;
-    scanResult.innerHTML = `
-      ${v.label}
-      <div class="detail">Confidence: ${Math.round(data.confidence * 100)}% · ${data.threat_category}</div>
-    `;
+    scanResult.className = 'result ' + v.cls;
+    scanResult.innerHTML =
+      v.label +
+      '<div class="detail">Confidence: ' + Math.round(data.confidence * 100) + '% \u00B7 ' + data.threat_category + '</div>';
     scanResult.classList.remove('hidden');
+
+    // Add to alerts tab
+    addAlert(data);
+  }
+
+  function addAlert(data) {
+    const v = mapVerdict(data.risk_level);
+    const dotCls = v.cls === 'safe' ? 'safe' : v.cls === 'suspicious' ? 'warning' : 'danger';
+    // Remove empty message
+    const empty = alertsList.querySelector('.empty');
+    if (empty) empty.remove();
+
+    const item = document.createElement('div');
+    item.className = 'alert-item';
+    item.innerHTML =
+      '<div class="alert-dot ' + dotCls + '"></div>' +
+      '<div class="alert-url">' + data.url + '</div>' +
+      '<div class="alert-time">now</div>';
+    alertsList.prepend(item);
   }
 
   // Check login status
   chrome.runtime.sendMessage({ type: 'GET_STATUS' }, (res) => {
     if (res && res.loggedIn) {
-      loginSection.classList.add('hidden');
-      mainSection.classList.remove('hidden');
-      userInfo.textContent = res.user ? `Signed in as ${res.user.email}` : 'Signed in';
-      if (res.lastScan) {
-        showLastScan(res.lastScan);
-      }
+      showLoggedIn(res.user, res.lastScan);
     } else {
       loginSection.classList.remove('hidden');
-      mainSection.classList.add('hidden');
+      mainSection.style.display = 'none';
+      statusDot.style.background = 'var(--text-muted)';
     }
   });
 
+  function showLoggedIn(user, lastScan) {
+    loginSection.classList.add('hidden');
+    mainSection.style.display = 'flex';
+    mainSection.classList.remove('hidden');
+    userInfo.textContent = user ? 'Signed in as ' + user.email : 'Signed in';
+    statusDot.style.background = 'var(--safe)';
+    if (lastScan) showLastScan(lastScan);
+  }
+
   function showLastScan(data) {
     const v = mapVerdict(data.risk_level);
-    lastScanInfo.innerHTML = `
-      <span>${data.url}</span><br/>
-      <strong class="${v.cls}">${v.label}</strong> (${Math.round(data.confidence * 100)}%)
-    `;
-    lastScanDiv.classList.remove('hidden');
+    lastScanInfo.innerHTML =
+      '<span style="word-break:break-all;">' + data.url + '</span><br/>' +
+      '<strong style="color:var(--' + (v.cls === 'safe' ? 'safe' : v.cls === 'suspicious' ? 'warning' : 'danger') + ')">' + v.label + '</strong>' +
+      ' (' + Math.round(data.confidence * 100) + '%)';
+    lastScanSection.style.display = 'block';
   }
 
   // Login
@@ -65,11 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
       loginBtn.disabled = false;
       loginBtn.textContent = 'Sign In';
       if (res && res.ok) {
-        loginSection.classList.add('hidden');
-        mainSection.classList.remove('hidden');
-        userInfo.textContent = `Signed in as ${email}`;
+        showLoggedIn({ email }, null);
       } else {
-        loginError.textContent = res?.error || 'Login failed';
+        loginError.textContent = (res && res.error) || 'Login failed';
         loginError.classList.remove('hidden');
       }
     });
@@ -78,10 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Logout
   logoutBtn.addEventListener('click', () => {
     chrome.runtime.sendMessage({ type: 'LOGOUT' }, () => {
-      mainSection.classList.add('hidden');
+      mainSection.style.display = 'none';
       loginSection.classList.remove('hidden');
       scanResult.classList.add('hidden');
-      lastScanDiv.classList.add('hidden');
+      lastScanSection.style.display = 'none';
+      statusDot.style.background = 'var(--text-muted)';
     });
   });
 
@@ -101,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showResult(res.data);
       } else {
         scanResult.className = 'result malicious';
-        scanResult.innerHTML = `Error: ${res?.error || 'Scan failed'}`;
+        scanResult.innerHTML = 'Error: ' + ((res && res.error) || 'Scan failed');
         scanResult.classList.remove('hidden');
       }
     });
@@ -109,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Pre-fill with current tab URL
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (tabs[0]?.url && tabs[0].url.startsWith('http')) {
+    if (tabs[0] && tabs[0].url && tabs[0].url.startsWith('http')) {
       scanUrlInput.value = tabs[0].url;
     }
   });

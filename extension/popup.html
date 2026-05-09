@@ -10,33 +10,96 @@
   <div class="popup">
     <div class="header">
       <h1>Runtime Detector</h1>
+      <div class="status-dot" id="status-dot"></div>
     </div>
 
-    <!-- Login form -->
-    <div id="login-section" class="section hidden">
+    <!-- Login form (shown when not logged in) -->
+    <div id="login-section" class="login-form hidden">
       <input type="email" id="email" placeholder="Email" />
       <input type="password" id="password" placeholder="Password" />
       <button id="login-btn" class="btn primary">Sign In</button>
       <div id="login-error" class="error hidden"></div>
     </div>
 
-    <!-- Logged-in view -->
-    <div id="main-section" class="section hidden">
-      <div id="user-info" class="user-info"></div>
+    <!-- Main view (shown when logged in) -->
+    <div id="main-section" class="hidden" style="display:none;flex-direction:column;flex:1;">
 
-      <div class="scan-box">
-        <input type="url" id="scan-url" placeholder="Enter URL to scan..." />
-        <button id="scan-btn" class="btn primary">Scan</button>
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="overview">Overview</button>
+        <button class="tab" data-tab="alerts">Alerts</button>
+        <button class="tab" data-tab="processes">Processes</button>
+        <button class="tab" data-tab="settings">Settings</button>
       </div>
 
-      <div id="scan-result" class="result hidden"></div>
-
-      <div id="last-scan" class="last-scan hidden">
-        <div class="label">Last auto-scan:</div>
-        <div id="last-scan-info"></div>
+      <!-- Overview tab -->
+      <div class="tab-content active" id="tab-overview">
+        <div class="section">
+          <div id="user-info" class="user-info"></div>
+        </div>
+        <div class="section">
+          <div class="scan-box">
+            <input type="url" id="scan-url" placeholder="Enter URL to scan..." />
+            <button id="scan-btn" class="btn primary">Scan</button>
+          </div>
+          <div id="scan-result" class="result hidden"></div>
+        </div>
+        <div class="section" id="last-scan-section" style="display:none;">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">Last auto-scan</div>
+          <div id="last-scan-info" style="font-size:12px;"></div>
+        </div>
       </div>
 
-      <button id="logout-btn" class="btn secondary">Log Out</button>
+      <!-- Alerts tab -->
+      <div class="tab-content" id="tab-alerts">
+        <div class="section">
+          <div id="alerts-list">
+            <div class="empty">No alerts yet. Browse the web to start scanning.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Processes tab -->
+      <div class="tab-content" id="tab-processes">
+        <div class="section">
+          <div id="processes-list">
+            <div class="process-item">
+              <span class="process-name">URL Scanner</span>
+              <span class="process-status">Active</span>
+            </div>
+            <div class="process-item">
+              <span class="process-name">Runtime Monitor</span>
+              <span class="process-status">Active</span>
+            </div>
+            <div class="process-item">
+              <span class="process-name">Threat Database</span>
+              <span class="process-status">Synced</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings tab -->
+      <div class="tab-content" id="tab-settings">
+        <div class="section">
+          <div class="setting-row">
+            <span class="setting-label">Auto-scan on navigation</span>
+            <label class="toggle"><input type="checkbox" id="setting-autoscan" checked /><span class="slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">Show warning overlay</span>
+            <label class="toggle"><input type="checkbox" id="setting-overlay" checked /><span class="slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">Notifications</span>
+            <label class="toggle"><input type="checkbox" id="setting-notif" checked /><span class="slider"></span></label>
+          </div>
+        </div>
+        <div class="section">
+          <button id="logout-btn" class="btn danger" style="width:100%">Log Out</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
