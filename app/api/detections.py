@@ -25,6 +25,8 @@ def list_detections():
                 "scan_id": r.submissionID,
                 "url": r.url,
                 "status": r.status,
+                "risk_level": r.risk_level,
+                "confidence": r.confidence,
                 "source": r.submissionSource,
                 "created_at": r.creationDate.isoformat() if r.creationDate else None,
             }

@@ -158,6 +158,8 @@ class URLSubmission(db.Model):
     creationDate     = db.Column(db.DateTime, default=datetime.utcnow)
     submissionSource = db.Column(db.String(100))
     status           = db.Column(db.String(50), default='pending')
+    risk_level       = db.Column(db.String(50), nullable=True)
+    confidence       = db.Column(db.Float, nullable=True)
 
     # FK — if User deleted, their submissions deleted too
     userID = db.Column(db.Integer, db.ForeignKey('users.userID',

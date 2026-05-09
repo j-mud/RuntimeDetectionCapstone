@@ -38,8 +38,8 @@ def analyze():
     result.scan_id = submission.submissionID
 
     submission.status = "complete"
-    # We do not have a ModelVersion/Session yet — record inference summary on URLSubmission
-    # and defer full Prediction row to the real pipeline (B1/B2) integration.
+    submission.risk_level = result.risk_level.value
+    submission.confidence = result.confidence
     current_app.logger.info(
         "scan %s -> %s (%.3f)", url, result.risk_level.value, result.confidence
     )
