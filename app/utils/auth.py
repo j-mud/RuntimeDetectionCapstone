@@ -1,8 +1,15 @@
-import hashlib, os
+import hashlib, os, secrets
 def hash_password(p): s=os.urandom(16).hex(); return f"{s}:{hashlib.sha256((s+p).encode()).hexdigest()}"
 def verify_password(p,h):
     try: s,hh=h.split(':'); return hashlib.sha256((s+p).encode()).hexdigest()==hh
     except: return False
+
+def hash_api_key(raw: str) -> str:
+    return hashlib.sha256(raw.encode()).hexdigest()
+
+def generate_api_key() -> tuple[str, str]:
+    plaintext = "rdc_" + secrets.token_urlsafe(32)
+    return plaintext, hash_api_key(plaintext)
 
 from functools import wraps
 from flask import jsonify

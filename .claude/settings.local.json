@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git pull *)",
+      "Bash(git add *)",
+      "Bash(git rebase *)",
+      "Bash(git stash *)",
+      "Bash(git restore *)",
+      "Bash(git checkout *)",
+      "Bash(git push *)",
+      "PowerShell(python run.py 2>&1 | Select-Object -First 80)",
+      "PowerShell(try { \\(Invoke-WebRequest -Uri \"http://127.0.0.1:5000/health\" -UseBasicParsing -TimeoutSec 3\\).StatusCode } catch { \"ERROR: $\\($_.Exception.Message\\)\" })",
+      "PowerShell(try { \\(Invoke-WebRequest -Uri \"http://127.0.0.1:5173\" -UseBasicParsing -TimeoutSec 3\\).StatusCode } catch { \"ERROR: $\\($_.Exception.Message\\)\" })",
+      "PowerShell(.\\\\.venv\\\\Scripts\\\\python.exe run.py)",
+      "PowerShell($body = @{email=\"smoketest_$\\(Get-Random\\)@example.com\"; password=\"Password1234\"; name=\"Smoke\"} | ConvertTo-Json; try { $r = Invoke-WebRequest -Uri \"http://127.0.0.1:5000/auth/register\" -Method POST -Body $body -ContentType \"application/json\" -UseBasicParsing -TimeoutSec 5; \"STATUS: $\\($r.StatusCode\\)`n$\\($r.Content\\)\" } catch { \"ERROR: $\\($_.Exception.Message\\) -- $\\($_.ErrorDetails.Message\\)\" })",
+      "PowerShell(.\\\\.venv\\\\Scripts\\\\python.exe -c \"import sqlite3; con=sqlite3.connect\\('instance/capstone.db'\\); cur=con.execute\\('PRAGMA table_info\\(urlSubmissions\\)'\\); [print\\(r\\) for r in cur.fetchall\\(\\)]\")",
+      "PowerShell(.\\\\.venv\\\\Scripts\\\\python.exe -c \"import sqlite3; con=sqlite3.connect\\('instance/capstone.db'\\); con.execute\\('ALTER TABLE urlSubmissions ADD COLUMN websiteID INTEGER REFERENCES websites\\(websiteID\\) ON DELETE SET NULL'\\); con.commit\\(\\); cur=con.execute\\('PRAGMA table_info\\(urlSubmissions\\)'\\); [print\\(r\\) for r in cur.fetchall\\(\\)]\")",
+      "PowerShell(.\\\\.venv\\\\Scripts\\\\python.exe _schema_audit.py)",
+      "PowerShell($env:FLASK_APP=\"run.py\"; .\\\\.venv\\\\Scripts\\\\python.exe -m flask db upgrade 2>&1 | Out-String)",
+      "PowerShell($env:FLASK_APP=\"run.py\"; .\\\\.venv\\\\Scripts\\\\python.exe -m flask db migrate -m \"add risk_level and confidence to urlSubmissions\" 2>&1 | Out-String)",
+      "PowerShell($env:FLASK_APP=\"run.py\"; .\\\\.venv\\\\Scripts\\\\python.exe -m flask db upgrade 2>&1 | Out-String; .\\\\.venv\\\\Scripts\\\\python.exe _schema_audit.py 2>&1 | Out-String)",
+      "PowerShell(.\\\\_smoke.ps1 2>&1 | Out-String)",
+      "PowerShell(Set-Content *)",
+      "PowerShell(.\\\\_smoke.ps1; Get-Content _smoke_log.txt)",
+      "PowerShell(.\\\\_smoke.ps1; Get-Content _smoke_log.txt | Select-Object -Last 5)",
+      "PowerShell(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}

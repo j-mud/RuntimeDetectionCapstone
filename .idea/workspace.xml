@@ -5,7 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aebd3ac5-e70b-4909-8101-faa28e11312c" name="Changes" comment="commit Step 6: Set Up Configuration Management from steps">
+      <change afterPath="$PROJECT_DIR$/migrations/versions/3bee01cc4dd8_add_risk_level_and_confidence_to_.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/RuntimeDetectionCapstone.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/RuntimeDetectionCapstone.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/api/dashboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/dashboard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/utils/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/auth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/run.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,7 +38,7 @@
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "https://github.com/mialfadda/RuntimeDetectionCapstoneGitHub.git",
-    "accountId": "a6bae148-36f0-4c6a-9a71-fb6f063b1786"
+    "accountId": "fc280b1c-7bd3-4936-a829-93863f5c4d7b"
   }
 }]]></component>
   <component name="ProjectColorInfo">{
@@ -50,9 +56,11 @@
     "Python tests.Python tests in test_models.py.executor": "Run",
     "Python.__init__.executor": "Run",
     "Python.models.executor": "Run",
+    "Python.run.executor": "Run",
     "Python.test_models.executor": "Run",
     "Python.test_setup.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
@@ -74,10 +82,35 @@
       <recent name="C:\Users\mawya\PycharmProjects\RuntimeDetectionCapstone\reports" />
     </key>
   </component>
+  <component name="RunManager">
+    <configuration name="run" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="RuntimeDetectionCapstone" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.13 (RuntimeDetectionCapstoneGitHub)" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-b63d5a1f7c97-b61e75351b1f-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-261.22158.340" />
+        <option value="bundled-python-sdk-9f8e2b94138c-36ea0e71a18c-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.26094.141" />
       </set>
     </attachedChunks>
   </component>

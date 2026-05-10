@@ -128,8 +128,8 @@ def download_report(report_id: int):
 def generate_report():
     data = request.get_json(silent=True) or {}
     prediction_id = data.get("prediction_id")
-    fmt = (data.get("format") or "pdf").lower()
-    if fmt not in ("pdf", "csv"):
+    fmt = (data.get("format") or "PDF").upper()
+    if fmt not in ("PDF", "CSV"):
         return jsonify({"error": "format must be pdf or csv"}), 400
     if not isinstance(prediction_id, int):
         return jsonify({"error": "prediction_id (int) is required"}), 400
