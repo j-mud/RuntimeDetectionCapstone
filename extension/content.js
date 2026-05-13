@@ -61,7 +61,8 @@ function showWarningOverlay(payload) {
       '<button id="rd-go-back" style="background:#2D5FA6;color:white;border:none;padding:12px 24px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">Go Back to Safety</button>' +
       '<button id="rd-view-exp" style="background:white;color:#2D5FA6;border:1px solid #2D5FA6;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">View Explanation</button>' +
       '<button id="rd-proceed" style="background:white;color:#666;border:1px solid #ddd;padding:10px 24px;border-radius:8px;font-size:13px;cursor:pointer;">Proceed Anyway</button>' +
-    '</div>';
+    '</div>' +
+    '<div style="margin-top:18px;font-size:11px;color:#999;letter-spacing:0.5px;">Powered by RUNTIME MALWEB DETECTOR</div>';
 
   overlay.appendChild(card);
   document.body.appendChild(overlay);

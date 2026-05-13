@@ -31,8 +31,14 @@ def create_app():
     from flask_migrate import Migrate
     db.init_app(app)
     Migrate(app, db)
-    JWTManager(app)
+    jwt = JWTManager(app)
     limiter.init_app(app)
+
+    from app.api.auth import is_jti_revoked
+
+    @jwt.token_in_blocklist_loader
+    def check_if_token_revoked(jwt_header, jwt_payload):
+        return is_jti_revoked(jwt_payload["jti"])
 
     from app.api.websocket import socketio
     socketio.init_app(app)

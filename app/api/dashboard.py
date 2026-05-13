@@ -116,7 +116,7 @@ def download_report(report_id: int):
     fmt = (report.format or "pdf").lower()
     path = os.path.join(reports_dir, f"report_{report_id}.{fmt}")
     if not os.path.exists(path):
-        # Placeholder until A2's report generator lands.
+        # Stub until A2's report generator lands.
         return jsonify({"error": "report file not yet generated"}), 202
     return send_file(path, as_attachment=True)
 

@@ -6,4 +6,7 @@ health_bp = Blueprint("health", __name__)
 
 @health_bp.get("/health")
 def health():
-    return jsonify({"status": "ok"}), 200
+    return jsonify({
+        "status": "healthy",
+        "service": "RUNTIME MALWEB DETECTOR",
+    }), 200

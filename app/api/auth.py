@@ -5,6 +5,10 @@ from app.utils.auth import hash_password, verify_password
 from app.utils.validators import ValidationError, validate_email, validate_password
 auth_bp = Blueprint("auth", __name__)
 _REVOKED = set()
+
+def is_jti_revoked(jti: str) -> bool:
+    """Used by @jwt.token_in_blocklist_loader in app/__init__.py."""
+    return jti in _REVOKED
 def _tokens(u):
     c={"role":u.role,"email":u.email}
     return {"access_token":create_access_token(identity=str(u.userID),additional_claims=c),"refresh_token":create_refresh_token(identity=str(u.userID),additional_claims=c),"role":u.role}

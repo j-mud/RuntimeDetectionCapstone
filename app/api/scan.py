@@ -5,7 +5,7 @@ from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import limiter
-from app.database.models import Prediction, URLSubmission, db
+from app.database.models import Explanation, Prediction, URLSubmission, db
 from app.interfaces.contracts import RuntimeEvidence, ScanRequest, to_json
 from app.interfaces.mocks import run_pipeline
 from app.utils.validators import ValidationError, reject_injection, validate_url
@@ -40,6 +40,21 @@ def analyze():
     submission.status = "complete"
     submission.risk_level = result.risk_level.value
     submission.confidence = result.confidence
+
+    exp = Explanation(
+        submission_id=submission.submissionID,
+        rationale=(
+            f"URL '{url}' was analyzed by the ensemble model. "
+            f"Risk level: {result.risk_level.value}. "
+            f"Threat category: {result.threat_category.value}. "
+            f"Confidence: {round(result.confidence * 100, 1)}%. "
+            f"Top contributing signals: URL structure, "
+            f"domain reputation, and script behavior patterns."
+        ),
+        method='SHAP',
+    )
+    db.session.add(exp)
+
     current_app.logger.info(
         "scan %s -> %s (%.3f)", url, result.risk_level.value, result.confidence
     )

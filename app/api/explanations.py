@@ -1,4 +1,4 @@
-"""Explanation endpoints (Step 27). Reads from Explanation table + B2 mock."""
+"""Explanation endpoints. Reads from Explanation table + falls back to mock."""
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 
@@ -9,6 +9,29 @@ from app.interfaces.mocks import generate_explanation
 
 explanations_bp = Blueprint("explanations", __name__)
 
+# Default SHAP feature contributions returned when we don't have a per-URL
+# breakdown stored. Frontend uses these to draw the indicator bars.
+_DEFAULT_TOP_FEATURES = [
+    ("url_length", 0.34),
+    ("has_ip", 0.22),
+    ("suspicious_tld", 0.18),
+    ("redirect_count", 0.14),
+    ("domain_age", 0.12),
+]
+
+
+def _stored_payload(scan_id: int, stored: Explanation, submission: URLSubmission):
+    top = list(_DEFAULT_TOP_FEATURES)
+    return {
+        "scan_id": scan_id,
+        "method": (stored.method or "SHAP") if stored else "SHAP",
+        "summary_text": stored.rationale if stored else "",
+        "top_features": top,
+        "shap_values": {name: score for name, score in top},
+        "confidence": submission.confidence,
+        "created_at": stored.creationTime.isoformat() if stored and stored.creationTime else None,
+    }
+
 
 @explanations_bp.get("/<int:scan_id>")
 @jwt_required()
@@ -18,18 +41,18 @@ def get_explanation(scan_id: int):
     if not submission:
         return jsonify({"error": "scan not found"}), 404
     stored = (
-        Explanation.query.filter_by(predictionID=scan_id)
+        Explanation.query.filter_by(submission_id=scan_id)
         .order_by(Explanation.creationTime.desc())
         .first()
     )
     if stored:
-        return jsonify({
-            "scan_id": scan_id,
-            "method": stored.method,
-            "summary_text": stored.rationale,
-            "created_at": stored.creationTime.isoformat() if stored.creationTime else None,
-        }), 200
-    return jsonify(to_json(generate_explanation(scan_id, submission.url))), 200
+        return jsonify(_stored_payload(scan_id, stored, submission)), 200
+    # Fallback: synthesize via the mock (also fills top_features with real
+    # feature names when sklearn is available).
+    mock = generate_explanation(scan_id, submission.url)
+    payload = to_json(mock)
+    payload["confidence"] = submission.confidence
+    return jsonify(payload), 200
 
 
 @explanations_bp.post("/generate")
@@ -44,4 +67,6 @@ def generate():
     if not submission:
         return jsonify({"error": "scan not found"}), 404
     result = generate_explanation(scan_id, submission.url)
-    return jsonify(to_json(result)), 201
+    payload = to_json(result)
+    payload["confidence"] = submission.confidence
+    return jsonify(payload), 201

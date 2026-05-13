@@ -444,8 +444,14 @@ class Explanation(db.Model):
 
     # FK — unique=True enforces the 1-to-1 — only ONE explanation per prediction
     # if Prediction deleted, its explanation deleted too
+    # NOTE: nullable=True because mock-pipeline scans don't go through Prediction.
     predictionID = db.Column(db.Integer, db.ForeignKey('predictions.predictionID',
-                             ondelete='CASCADE'), nullable=False, unique=True)
+                             ondelete='CASCADE'), nullable=True, unique=True)
+
+    # Direct link to URLSubmission so the API can look up the explanation by scan_id
+    # without needing a populated SandboxSession/Prediction chain.
+    submission_id = db.Column(db.Integer, db.ForeignKey('urlSubmissions.submissionID',
+                              ondelete='CASCADE'), nullable=True, index=True)
 
     # Validations
     @validates('method')

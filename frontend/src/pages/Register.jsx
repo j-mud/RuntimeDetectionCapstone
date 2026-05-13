@@ -28,7 +28,7 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md bg-white rounded-lg shadow p-8">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-900">Runtime Detection</h1>
+        <h1 className="text-2xl font-bold text-center mb-6 text-gray-900">RUNTIME MALWEB DETECTOR</h1>
         <h2 className="text-lg font-semibold text-center mb-4 text-gray-700">Create Account</h2>
         {error && <div className="bg-red-50 border border-red-200 text-red-700 rounded p-3 mb-4 text-sm">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-4">
