@@ -1,5 +1,4 @@
-// REPLACE-WITH-RAILWAY-URL after deployment.
-const DEFAULT_API_BASE = 'https://REPLACE-WITH-RAILWAY-URL.railway.app';
+const DEFAULT_API_BASE = 'https://web-production-2a0b62.up.railway.app';
 
 // User can override at runtime by saving `api_base` to chrome.storage.local
 // from the popup Settings page.
