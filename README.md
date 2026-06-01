@@ -7,7 +7,7 @@ A web application that detects malicious URLs (phishing, malware, defacement) us
 ## For graders — read this first
 
 **Canonical repo:** `mialfadda/RuntimeDetectionCapstoneGitHub`, **`master` branch**
-(not `main` — that's old ML-only history; not `integration` — that PR is already merged)
+(not `main` — that's old AI-only history; not `integration` — that PR is already merged)
 
 The model files are tracked with **Git LFS**. If you clone without LFS installed first, the models come down as broken pointer stubs and the app will fail with errors like `KeyError: 118`. Install LFS before cloning — it's a one-time setup.
 
