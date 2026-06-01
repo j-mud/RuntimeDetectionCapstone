@@ -222,7 +222,16 @@ def extract_features_from_url(url: str) -> dict:
     )
     letter_n_total = sum(1 for c in full if c.isalpha())
     registered_len = len(registered)
-    registered_hyphens = registered.count("-")
+    # `phish_adv_hyphen_count` uses a naive "second-to-last dot-separated
+    # netloc segment" definition rather than tldextract's public-suffix-
+    # aware registered domain. The two diverge on compound suffixes like
+    # `.com.br`: tldextract gives `br-icloud` for `br-icloud.com.br`
+    # (1 hyphen), but the CSV produces 0 — its pipeline only treats the
+    # last `.`-segment as the TLD, so for that URL the "registered
+    # domain" position is `com`. Validated empirically on 200k rows.
+    nl_segments = netloc.split(".")
+    naive_registered = nl_segments[-2] if len(nl_segments) >= 2 else ""
+    hyphen_count_naive = naive_registered.count("-")
 
     # Punctuation counts (verified 100% match on a 5000-row sample).
     punct = {
@@ -287,7 +296,7 @@ def extract_features_from_url(url: str) -> dict:
         "phish_adv_exact_brand_match": brand_exact,
         "phish_adv_brand_in_subdomain": brand_in_sub_text,
         "phish_adv_brand_in_path": brand_in_path,
-        "phish_adv_hyphen_count": min(registered_hyphens, 6),
+        "phish_adv_hyphen_count": min(hyphen_count_naive, 6),
         "phish_adv_number_count": digit_n_pure_segs,
         "phish_adv_suspicious_tld": _suspicious_tld(netloc, SUSPICIOUS_TLDS_ADV),
         "phish_adv_long_domain": 1 if registered_len >= THRESH["phish_adv_long_domain"] else 0,
