@@ -55,13 +55,12 @@ npm run dev                         # → http://localhost:5174
 
 ---
 
-The system has three components that run together:
+The system has two components that run together:
 
 | Component | What it is | URL |
 |-----------|-----------|-----|
 | Flask Backend | REST API — handles scans, auth, ML inference | http://localhost:5000 |
-| Frontend | User-facing app — submit URLs, view detections | http://localhost:5173 |
-| Dashboard | Admin analytics — threat metrics, model management | http://localhost:5174 |
+| Dashboard | Scan URLs, view detections, analytics, and admin tools | http://localhost:5174 |
 
 ---
 
@@ -138,38 +137,13 @@ curl http://localhost:5000/health
 # {"service":"RUNTIME MALWEB DETECTOR","status":"healthy"}
 ```
 
-Keep this terminal open. The frontend and dashboard both proxy API requests to port 5000.
+Keep this terminal open. The dashboard proxies API requests to port 5000.
 
 ---
 
-## Step 5 — Start the Frontend
+## Step 5 — Start the Dashboard
 
 Open a **second terminal**:
-
-```bash
-cd frontend
-npm install        # first time only
-npm run dev
-```
-
-Expected output:
-
-```
-VITE ready in ...ms
-➜  Local:   http://localhost:5173/
-```
-
-Open **http://localhost:5173** in your browser.
-
-- Register a new account (or log in if you already have one)
-- Paste any URL into the scan box and submit
-- View the detection result, risk level, confidence score, and LLM explanation
-
----
-
-## Step 6 — Start the Dashboard
-
-Open a **third terminal**:
 
 ```bash
 cd dashboard
@@ -186,27 +160,27 @@ VITE ready in ...ms
 
 Open **http://localhost:5174** in your browser.
 
-The dashboard shows:
+- Register a new account (or log in if you already have one)
+- Paste any URL into the scan box and submit
+- View the detection result, risk level, confidence score, and LLM explanation
+
+The dashboard also shows:
 - Threat metrics and scan counts
 - Breakdown by threat category (phishing / malware / defacement / benign)
 - Active ML model versions
 - Generated reports (downloadable as PDF/CSV)
 - Admin tools: user management, model upload/rollback, audit log
 
-> Log in with the same credentials you created on the frontend.
-
 ---
 
-## Summary — three terminals
+## Summary — two terminals
 
 ```
 Terminal 1 (project root):   python3 run.py          → http://localhost:5000
-Terminal 2 (frontend/):      npm run dev             → http://localhost:5173
-Terminal 3 (dashboard/):     npm run dev             → http://localhost:5174
+Terminal 2 (dashboard/):     npm run dev             → http://localhost:5174
 ```
 
-Use **http://localhost:5173** for scanning URLs.  
-Use **http://localhost:5174** for analytics and admin.
+Use **http://localhost:5174** for scanning URLs, analytics, and admin.
 
 ---
 
@@ -235,7 +209,6 @@ lsof -ti :5000 | xargs kill -9
 │   ├── interfaces/         # ML pipeline contract and adapters
 │   ├── models/             # Trained ML model artifacts and ensemble logic
 │   └── runtime/            # Feature extraction and URL analysis
-├── frontend/               # React + Vite user app (port 5173)
-├── dashboard/              # React + Vite admin dashboard (port 5174)
+├── dashboard/              # React + Vite app (port 5174)
 └── extension/              # Chrome browser extension source
 ```
