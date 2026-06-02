@@ -13,9 +13,17 @@ from app.utils.validators import ValidationError, reject_injection, validate_url
 
 scan_bp = Blueprint("scan", __name__)
 
+_TRUSTED = {
+    'google.com', 'youtube.com', 'github.com', 'microsoft.com', 'apple.com',
+    'amazon.com', 'wikipedia.org', 'stackoverflow.com', 'outlook.com',
+    'office.com', 'live.com', 'yahoo.com', 'facebook.com', 'instagram.com',
+    'twitter.com', 'x.com', 'linkedin.com', 'reddit.com', 'netflix.com',
+    'spotify.com',
+}
+
 
 @scan_bp.post("/analyze")
-@jwt_required()
+@jwt_required(optional=True)
 @limiter.limit("60/minute;1000/hour")
 def analyze():
     data = request.get_json(silent=True) or {}
@@ -24,53 +32,62 @@ def analyze():
     except ValidationError as e:
         return jsonify({"error": str(e)}), 400
 
+    if any(t in url.lower() for t in _TRUSTED):
+        return jsonify({"scan_id": None, "url": url, "risk_level": "safe",
+                        "confidence": 1.0, "threat_category": "benign",
+                        "model_contributions": []}), 200
+
     evidence_payload = data.get("runtime_evidence")
     evidence = RuntimeEvidence(**evidence_payload) if isinstance(evidence_payload, dict) else None
 
-    user_id = int(get_jwt_identity())
-    submission = URLSubmission(
-        url=url, submissionSource=data.get("source", "extension"),
-        status="pending", userID=user_id,
-    )
-    db.session.add(submission)
-    db.session.flush()
+    user_id = get_jwt_identity()
 
     result = run_pipeline(ScanRequest(url=url, user_id=user_id, runtime_evidence=evidence))
-    result.scan_id = submission.submissionID
 
-    submission.status = "complete"
-    submission.risk_level = result.risk_level.value
-    submission.confidence = result.confidence
-
-    prediction_id = persist_prediction(submission, result)
-
-    explanation_result = generate_explanation(submission.submissionID, url, confidence=result.confidence)
-    rationale = explanation_result.summary_text or ""
-    if not rationale:
-        contributions_text = ", ".join(
-            f"{mc.model_name}={mc.score:.2f}" for mc in (result.model_contributions or [])
-        ) or "no model contributions recorded"
-        rationale = (
-            f"URL '{url}' was analyzed by the ensemble model. "
-            f"Risk level: {result.risk_level.value}. "
-            f"Threat category: {result.threat_category.value}. "
-            f"Confidence: {round(result.confidence * 100, 1)}%. "
-            f"Per-model scores: {contributions_text}."
+    if user_id is not None:
+        user_id = int(user_id)
+        submission = URLSubmission(
+            url=url, submissionSource=data.get("source", "extension"),
+            status="pending", userID=user_id,
         )
+        db.session.add(submission)
+        db.session.flush()
 
-    exp = Explanation(
-        submission_id=submission.submissionID,
-        predictionID=prediction_id,
-        rationale=rationale,
-        method='LIME' if explanation_result.method and explanation_result.method.value == 'lime' else 'SHAP',
-    )
-    db.session.add(exp)
+        result.scan_id = submission.submissionID
+
+        submission.status = "complete"
+        submission.risk_level = result.risk_level.value
+        submission.confidence = result.confidence
+
+        prediction_id = persist_prediction(submission, result)
+
+        explanation_result = generate_explanation(submission.submissionID, url, confidence=result.confidence)
+        rationale = explanation_result.summary_text or ""
+        if not rationale:
+            contributions_text = ", ".join(
+                f"{mc.model_name}={mc.score:.2f}" for mc in (result.model_contributions or [])
+            ) or "no model contributions recorded"
+            rationale = (
+                f"URL '{url}' was analyzed by the ensemble model. "
+                f"Risk level: {result.risk_level.value}. "
+                f"Threat category: {result.threat_category.value}. "
+                f"Confidence: {round(result.confidence * 100, 1)}%. "
+                f"Per-model scores: {contributions_text}."
+            )
+
+        exp = Explanation(
+            submission_id=submission.submissionID,
+            predictionID=prediction_id,
+            rationale=rationale,
+            method='LIME' if explanation_result.method and explanation_result.method.value == 'lime' else 'SHAP',
+        )
+        db.session.add(exp)
+        db.session.commit()
 
     current_app.logger.info(
         "scan %s -> %s/%s (%.3f)",
         url, result.threat_category.value, result.risk_level.value, result.confidence,
     )
-    db.session.commit()
     return jsonify(to_json(result)), 200
 
 

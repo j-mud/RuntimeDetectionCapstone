@@ -9,29 +9,6 @@ from app.interfaces.mocks import generate_explanation
 
 explanations_bp = Blueprint("explanations", __name__)
 
-# Default SHAP feature contributions returned when we don't have a per-URL
-# breakdown stored. Frontend uses these to draw the indicator bars.
-_DEFAULT_TOP_FEATURES = [
-    ("url_length", 0.34),
-    ("has_ip", 0.22),
-    ("suspicious_tld", 0.18),
-    ("redirect_count", 0.14),
-    ("domain_age", 0.12),
-]
-
-
-def _stored_payload(scan_id: int, stored: Explanation, submission: URLSubmission):
-    top = list(_DEFAULT_TOP_FEATURES)
-    return {
-        "scan_id": scan_id,
-        "method": (stored.method or "SHAP") if stored else "SHAP",
-        "summary_text": stored.rationale if stored else "",
-        "top_features": top,
-        "shap_values": {name: score for name, score in top},
-        "confidence": submission.confidence,
-        "created_at": stored.creationTime.isoformat() if stored and stored.creationTime else None,
-    }
-
 
 @explanations_bp.get("/<int:scan_id>")
 @jwt_required()
@@ -45,13 +22,12 @@ def get_explanation(scan_id: int):
         .order_by(Explanation.creationTime.desc())
         .first()
     )
-    if stored:
-        return jsonify(_stored_payload(scan_id, stored, submission)), 200
-    # Fallback: synthesize via the mock (also fills top_features with real
-    # feature names when sklearn is available).
-    mock = generate_explanation(scan_id, submission.url)
-    payload = to_json(mock)
+    result = generate_explanation(scan_id, submission.url, confidence=submission.confidence or 0.0)
+    payload = to_json(result)
     payload["confidence"] = submission.confidence
+    if stored:
+        payload["summary_text"] = stored.rationale
+        payload["method"] = stored.method or payload.get("method", "SHAP")
     return jsonify(payload), 200
 
 

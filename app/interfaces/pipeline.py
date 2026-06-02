@@ -283,7 +283,7 @@ def generate_explanation(scan_id: int, url: str, confidence: float = 0.0) -> Exp
     shap_values: dict[str, float] = {}
     if shap_result:
         top_features = [
-            (f["feature"], float(f["shap_value"]))
+            (f.get("label", f["feature"]), float(f["shap_value"]))
             for f in shap_result.get("top_features", [])
         ]
         shap_values = {
@@ -292,7 +292,7 @@ def generate_explanation(scan_id: int, url: str, confidence: float = 0.0) -> Exp
         }
     elif lime_result:
         top_features = [
-            (f["feature"], float(f["weight"]))
+            (f.get("label", f["feature"]), float(f["weight"]))
             for f in lime_result.get("top_features", [])
         ]
 

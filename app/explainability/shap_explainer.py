@@ -7,6 +7,51 @@ from app.models._paths import artifact
 
 LABEL_MAP = {0: "benign", 1: "defacement", 2: "phishing", 3: "malware"}
 
+FEATURE_LABELS = {
+    "url_len":                    "URL length",
+    "@":                          "@ symbol in URL",
+    "?":                          "Query string present",
+    "-":                          "Hyphens in URL",
+    "=":                          "Parameter assignments",
+    ".":                          "Dot count",
+    "#":                          "Fragment identifier",
+    "%":                          "URL encoding",
+    "+":                          "Plus signs",
+    "$":                          "Dollar signs",
+    "!":                          "Exclamation marks",
+    "*":                          "Asterisks",
+    ",":                          "Commas",
+    "//":                         "Double slashes",
+    "digits":                     "Digit count",
+    "letters":                    "Letter count",
+    "Shortining_Service":         "URL shortener used",
+    "having_ip_address":          "Raw IP address",
+    "phish_urgency_words":        "Urgency words (verify, confirm…)",
+    "phish_security_words":       "Security words (secure, login…)",
+    "phish_brand_mentions":       "Brand name in URL",
+    "phish_brand_hijack":         "Brand impersonation",
+    "phish_multiple_subdomains":  "Multiple subdomains",
+    "phish_long_path":            "Unusually long path",
+    "phish_many_params":          "Many query parameters",
+    "phish_suspicious_tld":       "Suspicious domain extension",
+    "phish_adv_exact_brand_match":"Exact brand match",
+    "phish_adv_brand_in_subdomain":"Brand in subdomain",
+    "phish_adv_brand_in_path":    "Brand in path",
+    "phish_adv_hyphen_count":     "Hyphens in domain",
+    "phish_adv_number_count":     "Numbers in domain",
+    "phish_adv_suspicious_tld":   "Suspicious TLD (.tk, .xyz…)",
+    "phish_adv_long_domain":      "Long domain name",
+    "phish_adv_many_subdomains":  "Many subdomains",
+    "phish_adv_encoded_chars":    "Encoded characters",
+    "phish_adv_path_keywords":    "Suspicious path keywords",
+    "phish_adv_has_redirect":     "Redirect in URL",
+    "phish_adv_many_params":      "Many URL parameters",
+    "path_has_hacked_terms":      "Hacked/malware terms in path",
+    "suspicious_extension":       "Suspicious file extension",
+    "path_underscore_count":      "Underscores in path",
+    "is_gov_edu":                 "Government/education domain",
+}
+
 
 class SHAPExplainer:
     def __init__(self):
@@ -44,7 +89,11 @@ class SHAPExplainer:
                 class_shap = sv[0]
 
         feature_impacts = [
-            {"feature": name, "shap_value": round(float(val), 6)}
+            {
+                "feature": name,
+                "label": FEATURE_LABELS.get(name, name),
+                "shap_value": round(float(val), 6),
+            }
             for name, val in zip(self.feature_names, class_shap)
         ]
         feature_impacts.sort(key=lambda x: abs(x["shap_value"]), reverse=True)
