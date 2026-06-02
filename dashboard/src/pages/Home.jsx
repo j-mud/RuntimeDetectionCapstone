@@ -45,7 +45,7 @@ export default function Home() {
           ) : (
             <>
               <Link to="/login" className="text-[#2D5FA6] hover:underline font-medium">Log In</Link>
-              <Link to="/scan" className="text-gray-500 hover:text-gray-700 font-medium">Continue as Guest</Link>
+              <Link to="/register" className="text-gray-500 hover:text-gray-700 font-medium">Sign Up</Link>
             </>
           )}
         </div>

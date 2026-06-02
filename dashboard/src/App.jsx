@@ -16,7 +16,6 @@ import Warning from './pages/Warning';
 
 import Dashboard from './pages/Dashboard';
 import Scans from './pages/Scans';
-import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 
 export default function App() {
@@ -39,7 +38,6 @@ export default function App() {
           <Route path="app" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="scans" element={<Scans />} />
-            <Route path="reports" element={<Reports />} />
             <Route path="settings" element={<Settings />} />
           </Route>
 
