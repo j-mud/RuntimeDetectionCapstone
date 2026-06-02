@@ -311,4 +311,7 @@ def extract_features_from_url(url: str) -> dict:
         "suspicious_extension": _suspicious_extension(path),
         "path_underscore_count": _underscores(path),
         "is_gov_edu": _is_gov_edu(netloc),
+        # Not a model feature (not in feature_names.pkl) — used by ensemble
+        # post-processing to factor HTTPS into benign confidence.
+        "_https": 1 if (url or "").lower().startswith("https") else 0,
     }

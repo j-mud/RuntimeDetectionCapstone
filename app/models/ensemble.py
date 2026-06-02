@@ -11,6 +11,15 @@ MODEL_WEIGHTS = {
 }
 
 
+_SUSPICIOUS_FEATURES = (
+    "phish_urgency_words", "phish_security_words", "phish_brand_mentions",
+    "phish_brand_hijack", "phish_suspicious_tld", "phish_adv_suspicious_tld",
+    "phish_adv_exact_brand_match", "phish_adv_brand_in_subdomain",
+    "phish_adv_brand_in_path", "having_ip_address", "path_has_hacked_terms",
+    "Shortining_Service",
+)
+
+
 class EnsembleModel:
     def __init__(self):
         self.dt = DecisionTreeModel()
@@ -34,6 +43,26 @@ class EnsembleModel:
         final_label = max(final_probs, key=final_probs.get)
         final_class = [k for k, v in LABEL_MAP.items() if v == final_label][0]
         confidence = round(final_probs[final_label], 4)
+
+        # If no suspicious URL features fired, the models have no real signal
+        # to flag something malicious — override to benign.
+        # Confidence is derived from URL cleanliness: short length, high letter
+        # ratio, and few special characters are positive benign indicators.
+        if final_label in ("defacement", "phishing", "malware"):
+            if not any(feature_dict.get(f) for f in _SUSPICIOUS_FEATURES) and confidence < 0.80:
+                url_len = max(feature_dict.get("url_len", 50), 1)
+                letters = feature_dict.get("letters", 0)
+                special = sum(feature_dict.get(c, 0) for c in ("@", "?", "=", "%", "+", "$", "!"))
+                is_https = feature_dict.get("_https", 0)
+                clean_score = (
+                    0.35 * (1 - min(url_len, 100) / 100) +
+                    0.35 * (letters / url_len) +
+                    0.15 * (1 - min(special, 5) / 5) +
+                    0.15 * is_https
+                )
+                final_label = "benign"
+                final_class = 0
+                confidence = round(min(0.95, 0.65 + 0.30 * clean_score), 4)
 
         if final_label == "benign":
             risk_level = "low"
